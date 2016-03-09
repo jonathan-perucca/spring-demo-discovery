@@ -4,6 +4,7 @@ import com.example.DemoApplication;
 import com.example.account.model.Account;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.data.domain.Page;
@@ -14,12 +15,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 
@@ -40,6 +45,8 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TE
         executionPhase = AFTER_TEST_METHOD
 )
 public class AccountRepositoryIntegrationTest {
+
+    private static final Logger LOGGER = getLogger(AccountRepositoryIntegrationTest.class);
 
     @Autowired AccountRepository accountRepository;
     @Autowired EntityManager entityManager;
@@ -92,10 +99,21 @@ public class AccountRepositoryIntegrationTest {
 
     @Test
     public void should_async_find_by_uuid() throws ExecutionException, InterruptedException {
-        final Account account = accountRepository.findByUuid("abc-523").get();
+        asyncAssert(
+                accountRepository.findByUuid("abc-523"),
+                account -> assertThat(account.getBalance(), is(50))
+        );
+    }
 
-        assertThat(account, notNullValue());
-        assertThat(account.getBalance(), is(50));
+    private <T> T asyncAssert(CompletableFuture<T> completableFuture, Consumer<T> asserter) throws InterruptedException, ExecutionException {
+        final CompletableFuture<Void> future = completableFuture.thenAccept(asserter);
+
+        while (!future.isDone()) {
+            LOGGER.info("Waiting for completable future to complete");
+            MILLISECONDS.sleep(100);
+        }
+
+        return completableFuture.get();
     }
 
     @Test
