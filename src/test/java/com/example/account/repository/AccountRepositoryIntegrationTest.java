@@ -15,11 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static com.example.AsyncAsserts.asyncAssert;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
@@ -103,17 +101,6 @@ public class AccountRepositoryIntegrationTest {
                 accountRepository.findByUuid("abc-523"),
                 account -> assertThat(account.getBalance(), is(50))
         );
-    }
-
-    private <T> T asyncAssert(CompletableFuture<T> completableFuture, Consumer<T> asserter) throws InterruptedException, ExecutionException {
-        final CompletableFuture<Void> future = completableFuture.thenAccept(asserter);
-
-        while (!future.isDone()) {
-            LOGGER.info("Waiting for completable future to complete");
-            MILLISECONDS.sleep(100);
-        }
-
-        return completableFuture.get();
     }
 
     @Test
