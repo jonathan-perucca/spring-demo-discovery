@@ -1,12 +1,12 @@
 package com.example.account.service;
 
+import com.example.account.model.Account;
+import com.example.account.repository.AccountRepository;
 import com.example.exceptions.CreditNotAuthorizedException;
 import com.example.exceptions.NotAuthorizedException;
-import com.example.account.model.Account;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.util.Assert.notNull;
@@ -14,25 +14,24 @@ import static org.springframework.util.Assert.notNull;
 @Service
 public class AccountService {
 
-    private List<Account> accounts = new ArrayList<>();
-
-
     private final AuthorizationService authorizationService;
+    private final AccountRepository accountRepository;
 
     @Autowired
-    public AccountService(AuthorizationService authorizationService) {
+    public AccountService(AuthorizationService authorizationService,
+                          AccountRepository accountRepository) {
         this.authorizationService = authorizationService;
-        accounts.add(Account.builder().balance(10).build());
-        accounts.add(Account.builder().balance(20).build());
-        accounts.add(Account.builder().balance(50).build());
+        this.accountRepository = accountRepository;
     }
 
     public List<Account> getAccounts() {
-        return this.accounts;
+        return accountRepository.findAll();
     }
 
     public boolean addAccount(Account account) {
-        return accounts.add(account);
+        accountRepository.save(account);
+
+        return true;
     }
 
     public void updateBalance(Account account, int amount) {
