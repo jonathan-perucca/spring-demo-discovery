@@ -1,8 +1,9 @@
 package com.example.account.web;
 
 import com.example.AbstractBigTest;
-import com.example.exceptions.AccountEmptyException;
+import com.example.SqlDataAccount;
 import com.example.account.model.Account;
+import com.example.exceptions.AccountEmptyException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
 
@@ -11,10 +12,9 @@ import static com.jayway.restassured.RestAssured.when;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.*;
 
+@SqlDataAccount
 public class AccountControllerBigTest extends AbstractBigTest {
 
     @Test

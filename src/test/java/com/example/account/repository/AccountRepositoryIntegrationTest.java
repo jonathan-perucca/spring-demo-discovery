@@ -1,15 +1,14 @@
 package com.example.account.repository;
 
+import com.example.SqlDataAccount;
 import com.example.DemoApplication;
 import com.example.account.model.Account;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,36 +21,19 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
-import static org.slf4j.LoggerFactory.getLogger;
-import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
-import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = DemoApplication.class)
 
-@Sql(
-        statements = {
-                "insert into Account (uuid, balance) values ('abc-123', 30)",
-                "insert into Account (uuid, balance) values ('abc-523', 50)"
-        },
-        executionPhase = BEFORE_TEST_METHOD
-)
-@Sql(
-        statements = {
-                "delete from Account"
-        },
-        executionPhase = AFTER_TEST_METHOD
-)
+@SqlDataAccount
 public class AccountRepositoryIntegrationTest {
-
-    private static final Logger LOGGER = getLogger(AccountRepositoryIntegrationTest.class);
 
     @Autowired AccountRepository accountRepository;
     @Autowired EntityManager entityManager;
 
     @Test
     public void should_find_all_accounts() {
-        assertThat(accountRepository.findAll(), hasSize(2));
+        assertThat(accountRepository.findAll(), hasSize(3));
     }
 
     @Test
@@ -81,17 +63,17 @@ public class AccountRepositoryIntegrationTest {
     @Test
     public void should_find_page_accounts() {
         final int page = 0;
-        final int size = 1;
+        final int size = 2;
 
         final Page<Account> firstPage = accountRepository.findAllBy(new PageRequest(page, size));
         final Page<Account> secondPage = accountRepository.findAllBy(firstPage.nextPageable());
 
-        assertThat(firstPage.getTotalElements(), is(2L));
+        assertThat(firstPage.getTotalElements(), is(3L));
         assertThat(firstPage.getTotalPages(), is(2));
 
         assertThat(firstPage.getContent().get(0).getBalance(), is(30));
         assertThat(firstPage.hasNext(), is(true));
-        assertThat(secondPage.getContent().get(0).getBalance(), is(50));
+        assertThat(secondPage.getContent().get(0).getBalance(), is(90));
         assertThat(secondPage.hasNext(), is(false));
     }
 
@@ -105,9 +87,12 @@ public class AccountRepositoryIntegrationTest {
 
     @Test
     public void should_create_new_account() {
-        accountRepository.save(Account.builder().balance(100).build());
+        accountRepository.saveAndFlush(Account.builder().balance(100).build());
 
-        assertThat(accountRepository.findAll().size(), is(3));
+        final List<Account> accounts = accountRepository.findAll();
+
+        assertThat(accounts.size(), is(4));
+        accounts.forEach(account -> assertThat(account.getUuid(), notNullValue()));
     }
 
     @Transactional
