@@ -1,6 +1,7 @@
 package com.example;
 
 import lombok.Getter;
+import lombok.ToString;
 
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
@@ -9,7 +10,8 @@ import java.util.UUID;
 
 @MappedSuperclass
 @Getter
-public class Model {
+@ToString
+public abstract class Model {
     @Id
     private String uuid;
 

@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(callSuper = true)
 
 @Entity
 public class Account extends Model {
