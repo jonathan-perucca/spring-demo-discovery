@@ -16,6 +16,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @RestController
+@RequestMapping("/accounts")
 public class AccountController {
 
     private final AccountService accountService;
@@ -25,12 +26,12 @@ public class AccountController {
         this.accountService = accountService;
     }
 
-    @RequestMapping(method = GET, value = "/accounts")
+    @RequestMapping(method = GET)
     public List<Account> getAccounts() {
         return accountService.getAccounts();
     }
 
-    @RequestMapping(method = POST, value = "/accounts")
+    @RequestMapping(method = POST)
     @ResponseStatus(CREATED)
     public Account registerAccount(@RequestBody Account account) {
         if(account.getBalance() == 0)
