@@ -1,7 +1,7 @@
 package com.example.account.repository;
 
-import com.example.SqlDataAccount;
 import com.example.DemoApplication;
+import com.example.SqlDataAccount;
 import com.example.account.model.Account;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +16,6 @@ import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static com.example.AsyncAsserts.asyncAssert;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
@@ -79,10 +78,9 @@ public class AccountRepositoryIntegrationTest {
 
     @Test
     public void should_async_find_by_uuid() throws ExecutionException, InterruptedException {
-        asyncAssert(
-                accountRepository.findByUuid("abc-523"),
-                account -> assertThat(account.getBalance(), is(50))
-        );
+        accountRepository.findByUuid("abc-523")
+
+         .thenAccept(account -> assertThat(account.getBalance(), is(50))).get();
     }
 
     @Test
