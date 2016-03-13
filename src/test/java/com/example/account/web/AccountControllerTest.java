@@ -31,7 +31,7 @@ public class AccountControllerTest {
 
         accountController.registerAccount(account);
 
-        verify(accountService).addAccount(account);
+        verify(accountService).updateAccount(account);
     }
 
     @Test(expected = AccountEmptyException.class)

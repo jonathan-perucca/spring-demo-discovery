@@ -1,6 +1,7 @@
 package com.example.account.service;
 
 import com.example.account.model.Account;
+import com.example.account.repository.AccountRepository;
 import com.example.exceptions.CreditNotAuthorizedException;
 import com.example.exceptions.NotAuthorizedException;
 import org.junit.Before;
@@ -18,11 +19,10 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class AccountServiceTest {
 
-    @InjectMocks
-    private AccountService accountService;
+    @InjectMocks    private AccountService accountService;
 
-    @Mock
-    private AuthorizationService mockAuthorizationService;
+    @Mock           private AuthorizationService mockAuthorizationService;
+    @Mock           private AccountRepository accountRepository;
 
     private Account account = new Account();
 

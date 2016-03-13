@@ -37,7 +37,7 @@ public class AccountController {
         if(account.getBalance() == 0)
             throw new AccountEmptyException("Account cannot be empty");
 
-        accountService.addAccount(account);
+        accountService.updateAccount(account);
 
         return account;
     }

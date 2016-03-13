@@ -6,6 +6,7 @@ import com.example.exceptions.CreditNotAuthorizedException;
 import com.example.exceptions.NotAuthorizedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -24,16 +25,19 @@ public class AccountService {
         this.accountRepository = accountRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<Account> getAccounts() {
         return accountRepository.findAll();
     }
 
-    public boolean addAccount(Account account) {
+    @Transactional
+    public boolean updateAccount(Account account) {
         accountRepository.save(account);
 
         return true;
     }
 
+    @Transactional
     public void updateBalance(Account account, int amount) {
         validations(account, amount);
 
@@ -42,6 +46,7 @@ public class AccountService {
         }
 
         account.setBalance(account.getBalance() + amount);
+        updateAccount(account);
     }
 
     private void validations(Account account, int amount) {
