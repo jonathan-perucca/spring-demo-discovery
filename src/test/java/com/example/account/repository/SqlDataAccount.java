@@ -1,4 +1,4 @@
-package com.example;
+package com.example.account.repository;
 
 import org.springframework.test.context.jdbc.Sql;
 

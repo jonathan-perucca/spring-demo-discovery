@@ -1,7 +1,6 @@
 package com.example.account.repository;
 
 import com.example.DemoApplication;
-import com.example.SqlDataAccount;
 import com.example.account.model.Account;
 import org.junit.Test;
 import org.junit.runner.RunWith;

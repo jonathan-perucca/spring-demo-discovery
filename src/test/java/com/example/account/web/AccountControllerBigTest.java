@@ -1,7 +1,7 @@
 package com.example.account.web;
 
 import com.example.AbstractBigTest;
-import com.example.SqlDataAccount;
+import com.example.account.repository.SqlDataAccount;
 import com.example.account.model.Account;
 import com.example.exceptions.AccountEmptyException;
 import com.fasterxml.jackson.core.JsonProcessingException;
