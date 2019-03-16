@@ -8,17 +8,16 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.slf4j.LoggerFactory.getLogger;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
 
 @ActiveProfiles("integration")
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = DemoApplication.class)
-@WebIntegrationTest
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment = DEFINED_PORT, properties = "server.port=8999")
 public abstract class AbstractBigTest {
 
     private static final Logger LOGGER = getLogger(AbstractBigTest.class);

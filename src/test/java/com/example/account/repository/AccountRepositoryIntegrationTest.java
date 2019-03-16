@@ -1,29 +1,26 @@
 package com.example.account.repository;
 
-import com.example.DemoApplication;
 import com.example.account.model.Account;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = DemoApplication.class)
 
+@RunWith(SpringRunner.class)
+@SpringBootTest
 @SqlDataAccount
+@Transactional
 public class AccountRepositoryIntegrationTest {
 
     @Autowired AccountRepository accountRepository;
@@ -31,31 +28,31 @@ public class AccountRepositoryIntegrationTest {
 
     @Test
     public void should_find_all_accounts() {
-        assertThat(accountRepository.findAll(), hasSize(3));
+        assertThat( accountRepository.findAll() ).hasSize(3);
     }
 
     @Test
     public void should_find_by_uuid() {
-        final Account account = accountRepository.findOne("abc-123");
+        Account account = accountRepository.getOne("abc-123");
 
-        assertThat(account, notNullValue());
-        assertThat(account.getBalance(), is(30));
+        assertThat(account).isNotNull();
+        assertThat(account.getBalance()).isEqualTo(30);
     }
 
     @Test
     public void should_find_by_balance() {
         final List<Account> accounts = accountRepository.findByBalance(50);
 
-        assertThat(accounts, hasSize(1));
-        assertThat(accounts.get(0).getUuid(), is("abc-523"));
+        assertThat(accounts).hasSize(1);
+        assertThat(accounts.get(0).getUuid()).isEqualTo("abc-523");
     }
 
     @Test
     public void should_find_from_balance() {
         final List<Account> accounts = accountRepository.findFromBalance(50);
 
-        assertThat(accounts, hasSize(1));
-        assertThat(accounts.get(0).getUuid(), is("abc-523"));
+        assertThat(accounts).hasSize(1);
+        assertThat(accounts.get(0).getUuid()).isEqualTo("abc-523");
     }
 
     @Test
@@ -66,20 +63,20 @@ public class AccountRepositoryIntegrationTest {
         final Page<Account> firstPage = accountRepository.findAllBy(new PageRequest(page, size));
         final Page<Account> secondPage = accountRepository.findAllBy(firstPage.nextPageable());
 
-        assertThat(firstPage.getTotalElements(), is(3L));
-        assertThat(firstPage.getTotalPages(), is(2));
+        assertThat(firstPage.getTotalElements()).isEqualTo(3L);
+        assertThat(firstPage.getTotalPages()).isEqualTo(2);
 
-        assertThat(firstPage.getContent().get(0).getBalance(), is(30));
-        assertThat(firstPage.hasNext(), is(true));
-        assertThat(secondPage.getContent().get(0).getBalance(), is(90));
-        assertThat(secondPage.hasNext(), is(false));
+        assertThat(firstPage.getContent().get(0).getBalance()).isEqualTo(30);
+        assertThat(firstPage.hasNext()).isTrue();
+        assertThat(secondPage.getContent().get(0).getBalance()).isEqualTo(90);
+        assertThat(secondPage.hasNext()).isFalse();
     }
 
     @Test
     public void should_async_find_by_uuid() throws ExecutionException, InterruptedException {
         accountRepository.findByUuid("abc-523")
 
-         .thenAccept(account -> assertThat(account.getBalance(), is(50))).get();
+         .thenAccept(account -> assertThat(account.getBalance()).isEqualTo(50)).get();
     }
 
     @Test
@@ -88,11 +85,10 @@ public class AccountRepositoryIntegrationTest {
 
         final List<Account> accounts = accountRepository.findAll();
 
-        assertThat(accounts.size(), is(4));
-        accounts.forEach(account -> assertThat(account.getUuid(), notNullValue()));
+        assertThat(accounts).hasSize(4);
+        accounts.forEach(account -> assertThat(account.getUuid()).isNotNull());
     }
 
-    @Transactional
     @Test
     public void should_update_account() {
         final Account account = accountRepository.findAll().get(0);
@@ -102,7 +98,7 @@ public class AccountRepositoryIntegrationTest {
         accountRepository.saveAndFlush(account);
         entityManager.clear();
 
-        assertThat(entityManager.contains(account), is(false));
-        assertThat(accountRepository.getOne(account.getUuid()).getBalance(), is(newBalance));
+        assertThat(entityManager.contains(account)).isFalse();
+        assertThat(accountRepository.getOne(account.getUuid()).getBalance()).isEqualTo(newBalance);
     }
 }
